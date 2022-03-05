@@ -1,5 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignUp = () => {
   const [email, setEmail] = useState("");
@@ -7,18 +10,52 @@ const SignUp = () => {
   const [lastName, setLastName] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmit, setIsSubmit] = useState(false);
+  const [isLoading, setLoading] = useState(false);
   const [consentment, setConsentment] = useState(false);
+  const history1 = useNavigate();
 
   const handleSubmit = (e) => {
-    setIsSubmit(true);
     e.preventDefault();
-    const obj = {
-      email: email,
-      firstName: firstName,
-      lastName: lastName,
-      password: password,
-    };
-    console.log({ obj });
+    setIsSubmit(true);
+
+    if (
+      email === "" ||
+      firstName === "" ||
+      lastName === "" ||
+      password === ""
+    ) {
+    } else {
+      setLoading(true);
+      const obj = {
+        email: email,
+        first_name: firstName,
+        last_name: lastName,
+        password: password,
+      };
+
+      axios
+        .post("http://localhost:4001/register", obj)
+        .then((res) => {
+          history1("/");
+          toast.success("User created successfully");
+        })
+        .catch((err) => {
+          console.log("err", err.response);
+          toast.error(err.response.data, {
+            position: "top-right",
+            autoClose: 5000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+          });
+        });
+
+      setLoading(false);
+
+      console.log({ obj });
+    }
   };
   return (
     <div class=" flex-r container">
@@ -58,7 +95,11 @@ const SignUp = () => {
               <span class="label">
                 First Name <span style={{ color: "red" }}>*</span>
               </span>
-              <div class=" flex-r input">
+              <div
+                class={`flex-r input ${
+                  isSubmit && firstName === "" ? "error" : ""
+                }`}
+              >
                 <input
                   type="text"
                   id="firstName"
@@ -73,7 +114,11 @@ const SignUp = () => {
               <span class="label">
                 Last Name <span style={{ color: "red" }}>*</span>
               </span>
-              <div class=" flex-r input">
+              <div
+                class={`flex-r input ${
+                  isSubmit && lastName === "" ? "error" : ""
+                }`}
+              >
                 <input
                   type="text"
                   id="lastName"
@@ -88,7 +133,11 @@ const SignUp = () => {
               <span class="label">
                 Password <span style={{ color: "red" }}>*</span>
               </span>
-              <div class="flex-r input">
+              <div
+                class={`flex-r input ${
+                  isSubmit && password === "" ? "error" : ""
+                }`}
+              >
                 <input
                   type="password"
                   placeholder="8+ (a, A, 1, #)"
@@ -99,17 +148,18 @@ const SignUp = () => {
               </div>
             </div>
 
-            <div class="check">
-              <input type="checkbox" name="consentment" value={consentment} />
-              <span>
-                {" "}
-                <span style={{ color: "red" }}>*</span> I've read and agree with
-                T&C{" "}
-              </span>
-            </div>
-
-            <button class="btn" onClick={(e) => handleSubmit(e)}>
+            <button
+              class="btn"
+              disabled={isLoading}
+              onClick={(e) => handleSubmit(e)}
+            >
               Create an Account
+              {isLoading && (
+                <i
+                  className="fa fa-refresh fa-spin"
+                  style={{ marginRight: "5px" }}
+                />
+              )}
             </button>
             <span class="extra-line">
               <span>Already have an account?</span>

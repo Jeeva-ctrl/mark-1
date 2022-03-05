@@ -127,3 +127,11 @@ input {
 .error {
   border: 2px solid red !important;
 }
+
+.fa-spin {
+  margin-left: 10px;
+}
+
+button:disabled {
+  background: #dddddd;
+}
